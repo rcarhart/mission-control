@@ -1,75 +1,53 @@
 # Mission Control
 
-Mission Control is a local-first Next.js dashboard for running Ross’s work like an operating system instead of a pile of tabs, chats, and half-remembered tasks.
+Mission Control is a local-first Next.js dashboard for running Ross’s work like an operating system instead of a soup of tabs, chats, specs, and vibes.
 
-Right now it is a UI prototype for a shared operating layer around projects, agents, approvals, calendar, memory, docs, and team structure. It is meant to become the main surface for seeing what is happening, what is blocked, what needs approval, and who is doing what.
-
-## What this is
-
-This app is the front-end shell for an operations dashboard that combines:
-
-- **Tasks** — a kanban-style board for backlog, in progress, review, and done
-- **Agents** — named workers with roles, status, and heartbeat visibility
-- **Approvals** — items explicitly waiting on Ross
-- **Calendar** — recurring jobs and proactive scheduled work
-- **Projects** — high-level initiative tracking
-- **Memory** — daily memory and long-term memory views
-- **Docs** — generated plans, specs, and reference materials
-- **Team** — delegation and reporting structure
-- **Office** — a future playful visualization layer for agent activity
-
-In plain English: this is the operating dashboard for the Ross + Sir Alex system.
+This project is **not** a homelab dashboard. It is the operating surface for the Ross + Sir Alex relationship: active projects, blockers, ownership, recent changes, repo drift, and scheduled work.
 
 ## Current state
 
-Today, Mission Control is a **single-page Next.js prototype** with static demo data.
+This build is now a stronger **first meaningful command-center slice** rather than a stack of disconnected placeholder tabs.
 
-It already includes:
+The app currently emphasizes:
 
-- a dark, premium dashboard layout
-- a left-side navigation rail
-- a top summary strip with key metrics
-- a kanban-style tasks view
-- an activity feed
-- section views for agents, approvals, calendar, projects, memory, docs, office, and team
-
-It does **not** yet have real backend integrations, persistence, auth, live task updates, or real agent/event wiring.
+- **Executive overview** with high-signal operational metrics
+- **Active project cards** as the main center of gravity
+- **Needs attention** for blockers, staleness, repo drift, and Ross decisions
+- **Agent workload snapshot** showing ownership and relative load
+- **Recent activity** for meaningful changes
+- **Repo / workspace hygiene** visibility
+- **Cron / scheduling** visibility for recurring jobs
+- **Office view placeholder** kept as a playful secondary layer
 
 ## Why it exists
 
-The goal is to replace vague project sprawl with one calm control surface.
+Mission Control should answer, at a glance:
 
-Mission Control should help Ross answer questions like:
-
-- What is actively being worked on?
-- What is blocked?
-- What is waiting on my decision?
-- Which agent owns what?
-- What recurring checks or scheduled work are happening?
+- What projects are active right now?
+- What stage are they in?
 - What changed recently?
-- What documents and plans already exist?
-
-The point is not to build “a homelab dashboard.”
-The point is to build an **operating layer for real work**.
+- What is blocked?
+- What needs Ross to decide something?
+- Which agent owns what?
+- What scheduled work is coming up?
+- Is the repo/workspace staying aligned with real work?
 
 ## Tech stack
 
 - **Next.js 16**
 - **React 19**
 - plain CSS via `app/globals.css`
-- local static data via `lib/data.js`
+- local structured dashboard data via `lib/data.js`
 
 ## Project structure
 
 - `app/layout.js` — root layout and metadata
-- `app/page.js` — app entry point
-- `components/MissionControlPage.js` — main dashboard UI and view switching
-- `lib/data.js` — current demo data model
+- `app/page.js` — entry point
+- `components/MissionControlPage.js` — main dashboard UI
+- `lib/data.js` — explicit operating data model for the first slice
 - `app/globals.css` — styling and layout system
 
 ## Run locally
-
-Install dependencies and start the dev server:
 
 ```bash
 npm install
@@ -80,29 +58,31 @@ The app runs on:
 
 - <http://localhost:8102>
 
-## Near-term direction
+## Build
 
-The likely MVP path is:
+```bash
+npm run build
+```
 
-1. make **Tasks** feel real
-2. make **Agents** and **Approvals** operationally useful
-3. connect **Calendar** to actual scheduled jobs / reminders
-4. turn **Projects**, **Memory**, and **Docs** into useful linked views instead of static placeholders
-5. add live data sources and persistence
+## Near-term next steps
+
+Likely follow-on slices:
+
+1. add project detail views and linked drill-downs
+2. derive parts of the model from real workspace/spec/git state
+3. connect scheduled work to actual cron/reminder sources
+4. make recent activity and hygiene less hand-authored
+5. turn the office layer into a genuinely fun secondary view
 
 ## Design intent
 
-The UI is meant to feel:
+The UI should feel:
 
 - dark
-- calm
+- sharp
+- premium
 - high-signal
-- low-noise
-- operational without becoming sterile
+- operationally useful
+- mildly amused by the world
 
-It should feel like mission control, not enterprise punishment software.
-
-## Status
-
-Prototype in progress.
-Not fake, not finished, and already pointing at something useful.
+Mission Control should feel like a real command center, not enterprise punishment software wearing a nicer jacket.

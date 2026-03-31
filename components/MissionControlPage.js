@@ -1,324 +1,288 @@
 'use client';
 
-import { useMemo, useState } from 'react';
 import { missionData } from '../lib/data';
 
 const toneClass = {
-  blue: 'blue',
-  green: 'green',
-  yellow: 'yellow',
-  purple: 'purple',
-  red: 'red',
-  default: '',
-};
-
-const dotClass = {
-  blue: 'dot-blue',
-  green: 'dot-green',
-  yellow: 'dot-yellow',
-  red: 'dot-red',
+  blue: 'tone-blue',
+  green: 'tone-green',
+  yellow: 'tone-yellow',
+  red: 'tone-red',
+  purple: 'tone-purple',
 };
 
 export default function MissionControlPage() {
-  const [activeView, setActiveView] = useState('tasks');
-
-  const content = useMemo(() => {
-    switch (activeView) {
-      case 'tasks':
-        return <TasksView />;
-      case 'agents':
-        return <AgentsView />;
-      case 'approvals':
-        return <ApprovalsView />;
-      case 'calendar':
-        return <CalendarView />;
-      case 'projects':
-        return <ProjectsView />;
-      case 'memory':
-        return <MemoryView />;
-      case 'docs':
-        return <DocsView />;
-      case 'office':
-        return <OfficeView />;
-      case 'team':
-        return <TeamView />;
-      default:
-        return <TasksView />;
-    }
-  }, [activeView]);
-
   return (
     <div className="layout-shell">
       <aside className="left-rail">
         <div className="brand-wrap">
           <div className="brand-badge">M</div>
           <div>
-            <div className="brand-title">Mission Control</div>
-            <div className="brand-subtitle">OpenClaw Operating Layer</div>
+            <div className="brand-title">{missionData.header.title}</div>
+            <div className="brand-subtitle">{missionData.header.eyebrow}</div>
           </div>
         </div>
 
         <nav className="tool-nav">
-          {missionData.nav.map((item) => (
-            <button
-              key={item.key}
-              className={`tool-link ${activeView === item.key ? 'active' : ''}`}
-              onClick={() => setActiveView(item.key)}
-            >
-              <span>{item.label}</span>
-            </button>
-          ))}
+          <a className="tool-link active" href="#overview">Overview</a>
+          <a className="tool-link" href="#projects">Projects</a>
+          <a className="tool-link" href="#attention">Needs attention</a>
+          <a className="tool-link" href="#workload">Agent workload</a>
+          <a className="tool-link" href="#activity">Recent activity</a>
+          <a className="tool-link" href="#hygiene">Repo hygiene</a>
+          <a className="tool-link" href="#schedule">Scheduling</a>
+          <a className="tool-link" href="#office">Office view</a>
         </nav>
 
         <div className="rail-box">
-          <div className="rail-box-label">Mission</div>
-          <p>{missionData.team.mission}</p>
+          <div className="rail-box-label">Operating priorities</div>
+          <div className="rail-list compact">
+            {missionData.priorities.map((item) => (
+              <div className="memory-item" key={item}>{item}</div>
+            ))}
+          </div>
         </div>
       </aside>
 
       <main className="main-shell">
-        <header className="main-topbar">
-          <div>
-            <h1>{labelFor(activeView)}</h1>
-            <p>{descriptionFor(activeView)}</p>
+        <header className="hero-card" id="overview">
+          <div className="hero-copy">
+            <div className="eyebrow">{missionData.header.eyebrow}</div>
+            <h1>{missionData.header.description}</h1>
+            <p>{missionData.header.statusNote}</p>
+            <div className="chip-row">
+              {missionData.header.contextChips.map((chip) => (
+                <span className="status-chip" key={chip}>{chip}</span>
+              ))}
+            </div>
           </div>
-          <div className="toolbar-actions">
-            <span className="status-chip">Next.js</span>
-            <span className="status-chip">Local host</span>
-            <button className="create-btn">+ New task</button>
+          <div className="hero-side">
+            <div className="mini-label">Scan result</div>
+            <div className="hero-score">Stable momentum</div>
+            <div className="hero-note">The center of gravity is now active projects. Ross decisions, blockers, and operational drift are visible without mode-switching.</div>
           </div>
         </header>
 
         <section className="kpi-row">
-          <div className="kpi-card">
-            <div className="kpi-label">This week</div>
-            <div className="kpi-value">{missionData.summary.thisWeek}</div>
-          </div>
-          <div className="kpi-card">
-            <div className="kpi-label">In progress</div>
-            <div className="kpi-value">{missionData.summary.inProgress}</div>
-          </div>
-          <div className="kpi-card">
-            <div className="kpi-label">Total</div>
-            <div className="kpi-value">{missionData.summary.total}</div>
-          </div>
-          <div className="kpi-card">
-            <div className="kpi-label">Completion</div>
-            <div className="kpi-value">{missionData.summary.completion}</div>
-          </div>
+          {missionData.overview.map((item) => (
+            <div className="kpi-card" key={item.label}>
+              <div className="kpi-label">{item.label}</div>
+              <div className="kpi-value">{item.value}</div>
+              <div className={`kpi-detail ${toneClass[item.tone] || ''}`}>{item.detail}</div>
+            </div>
+          ))}
         </section>
 
-        {content}
+        <div className="dashboard-grid">
+          <section className="panel panel-large" id="projects">
+            <div className="section-head">
+              <div>
+                <div className="section-kicker">Center of gravity</div>
+                <h2>Active projects</h2>
+              </div>
+              <span className="status-chip">{missionData.projects.length} tracked</span>
+            </div>
+
+            <div className="project-grid">
+              {missionData.projects.map((project) => (
+                <article className="project-card" key={project.id}>
+                  <div className="project-topline">
+                    <span className={`tag ${toneClass[project.health.tone] || ''}`}>{project.health.label}</span>
+                    <span className="priority-chip">{project.priority}</span>
+                  </div>
+                  <h3>{project.name}</h3>
+                  <p>{project.summary}</p>
+
+                  <div className="project-meta-grid">
+                    <MetaItem label="Status" value={project.status} />
+                    <MetaItem label="Phase" value={project.phase} />
+                    <MetaItem label="Owner" value={project.owner} />
+                    <MetaItem label="Support" value={project.support} />
+                    <MetaItem label="Updated" value={project.updated} />
+                    <MetaItem label="Repo" value={project.repo} />
+                  </div>
+
+                  <div className="stack-block">
+                    <div className="mini-label">Next action</div>
+                    <div className="memory-item emphasis">{project.nextStep}</div>
+                  </div>
+
+                  <div className="project-footer-grid">
+                    <div>
+                      <div className="mini-label">Blockers</div>
+                      {project.blockers.length ? (
+                        <div className="rail-list compact">
+                          {project.blockers.map((blocker) => (
+                            <div className="memory-item warning" key={blocker}>{blocker}</div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="muted-line">No active blockers.</div>
+                      )}
+                    </div>
+                    <div>
+                      <div className="mini-label">Ross input</div>
+                      <div className={`decision-flag ${project.waitingOnRoss ? 'needs' : 'clear'}`}>
+                        {project.waitingOnRoss ? 'Decision needed' : 'Clear for now'}
+                      </div>
+                      <div className="mini-label top-gap">Reference links</div>
+                      <div className="link-row">
+                        {project.links.map((link) => (
+                          <span className="status-chip" key={link}>{link}</span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section className="panel" id="attention">
+            <div className="section-head">
+              <div>
+                <div className="section-kicker">Immediate signal</div>
+                <h2>{missionData.attention.headline}</h2>
+              </div>
+              <span className="status-chip alert-chip">Act on this first</span>
+            </div>
+            <div className="rail-list">
+              {missionData.attention.items.map((item) => (
+                <div className="activity-card attention-card" key={item.title}>
+                  <div className="card-topline">
+                    <span className={`tag ${toneClass[item.tone] || ''}`}>{item.kind}</span>
+                  </div>
+                  <strong>{item.title}</strong>
+                  <div className="small-copy">{item.detail}</div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="panel" id="workload">
+            <div className="section-head">
+              <div>
+                <div className="section-kicker">Delegation visibility</div>
+                <h2>Agent workload snapshot</h2>
+              </div>
+              <span className="status-chip">Useful, not decorative</span>
+            </div>
+            <div className="rail-list">
+              {missionData.workload.map((agent) => (
+                <article className="workload-card" key={agent.agent}>
+                  <div className="agent-line">
+                    <strong>{agent.agent}</strong>
+                    <span className="status-chip">{agent.status}</span>
+                  </div>
+                  <div className="muted-line">{agent.role}</div>
+                  <div className="progress-row">
+                    <div className="progress-track"><span style={{ width: `${agent.load}%` }} /></div>
+                    <div className="progress-value">{agent.load}%</div>
+                  </div>
+                  <div className="small-copy"><strong>Focus:</strong> {agent.focus}</div>
+                  <div className="mini-label top-gap">Working on</div>
+                  <div className="link-row">
+                    {agent.workingOn.map((item) => (
+                      <span className="status-chip" key={item}>{item}</span>
+                    ))}
+                  </div>
+                  <div className="small-copy top-gap"><strong>Risk:</strong> {agent.risk}</div>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section className="panel" id="activity">
+            <div className="section-head">
+              <div>
+                <div className="section-kicker">Meaningful changes</div>
+                <h2>Recent activity</h2>
+              </div>
+              <span className="status-chip">Last 24h</span>
+            </div>
+            <div className="rail-list">
+              {missionData.activity.map((item) => (
+                <article className="activity-card" key={`${item.time}-${item.title}`}>
+                  <div className="activity-time">{item.time}</div>
+                  <strong>{item.title}</strong>
+                  <div className="small-copy">{item.detail}</div>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section className="panel" id="hygiene">
+            <div className="section-head">
+              <div>
+                <div className="section-kicker">Keep the shop clean</div>
+                <h2>Repo / workspace hygiene</h2>
+              </div>
+              <span className="status-chip">Score {missionData.hygiene.score}</span>
+            </div>
+            <p className="panel-copy">{missionData.hygiene.summary}</p>
+            <div className="rail-list compact">
+              {missionData.hygiene.checks.map((check) => (
+                <div className="hygiene-row" key={check.label}>
+                  <div>
+                    <strong>{check.label}</strong>
+                    <div className="muted-line">{check.state}</div>
+                  </div>
+                  <span className={`tag ${toneClass[check.tone] || ''}`}>{check.tone}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="panel" id="schedule">
+            <div className="section-head">
+              <div>
+                <div className="section-kicker">Visible recurring work</div>
+                <h2>Cron / scheduling</h2>
+              </div>
+              <span className="status-chip">{missionData.schedule.length} jobs</span>
+            </div>
+            <div className="rail-list compact">
+              {missionData.schedule.map((job) => (
+                <article className="schedule-card" key={job.name}>
+                  <div className="project-topline">
+                    <strong>{job.name}</strong>
+                    <span className="status-chip">{job.status}</span>
+                  </div>
+                  <div className="schedule-grid">
+                    <MetaItem label="Next run" value={job.nextRun} />
+                    <MetaItem label="Cadence" value={job.cadence} />
+                    <MetaItem label="Purpose" value={job.purpose} />
+                    <MetaItem label="Owner" value={job.owner} />
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section className="panel office-panel" id="office">
+            <div className="section-head">
+              <div>
+                <div className="section-kicker">Playful layer</div>
+                <h2>Office view, kept in its lane</h2>
+              </div>
+            </div>
+            <p className="panel-copy">{missionData.office.note}</p>
+            <div className="office-strip">
+              {missionData.office.agents.map((item) => (
+                <div className="office-avatar" key={item}>{item}</div>
+              ))}
+            </div>
+          </section>
+        </div>
       </main>
     </div>
   );
 }
 
-function TasksView() {
-  const columns = [
-    ['backlog', 'Backlog'],
-    ['inProgress', 'In Progress'],
-    ['review', 'Review'],
-    ['done', 'Done'],
-  ];
-
+function MetaItem({ label, value }) {
   return (
-    <div className="task-layout">
-      <section className="task-board-wrap">
-        <div className="filter-bar">
-          <span className="filter-pill">Board</span>
-          <span className="filter-pill">All projects</span>
-          <span className="filter-pill">All agents</span>
-          <span className="filter-pill review">Review = Ross approval</span>
-        </div>
-
-        <div className="kanban-board">
-          {columns.map(([key, label]) => (
-            <div className="kanban-col" key={key}>
-              <div className="kanban-head">
-                <div className="kanban-title">{label}</div>
-                <div className="kanban-count">{missionData.tasks[key].length}</div>
-              </div>
-              {missionData.tasks[key].map((item) => (
-                <div className="task-card" key={item.title}>
-                  <div className="task-title">{item.title}</div>
-                  <div className="task-desc">{item.description}</div>
-                  <div className="tags">
-                    {item.tags.map((tag) => (
-                      <span className={`tag ${toneClass[tag.tone] || ''}`} key={tag.label}>{tag.label}</span>
-                    ))}
-                  </div>
-                  <div className="task-meta">
-                    <span>{item.owner}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <aside className="activity-rail">
-        <div className="rail-head">
-          <h2>Live Activity</h2>
-          <span className="status-chip">5 updates</span>
-        </div>
-        <div className="activity-feed">
-          {missionData.tasks.activity.map((item) => (
-            <div className="activity-card" key={`${item.time}-${item.title}`}>
-              <div className="activity-time">{item.time}</div>
-              <strong>{item.title}</strong>
-              <div className="small-copy">{item.detail}</div>
-            </div>
-          ))}
-        </div>
-      </aside>
+    <div className="meta-item">
+      <div className="mini-label">{label}</div>
+      <div>{value}</div>
     </div>
   );
-}
-
-function AgentsView() {
-  return (
-    <div className="simple-grid two">
-      {missionData.agents.map((agent) => (
-        <div className="info-card" key={agent.name}>
-          <div className="agent-line">
-            <strong><span className={`status-dot ${dotClass[agent.tone] || 'dot-blue'}`} />{agent.name}</strong>
-            <span className="status-chip">{agent.status}</span>
-          </div>
-          <div className="muted-line">{agent.role}</div>
-          <p>{agent.detail}</p>
-          <div className="muted-line">Heartbeat: {agent.heartbeat}</div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function ApprovalsView() {
-  return (
-    <div className="simple-grid one">
-      {missionData.approvals.map((item) => (
-        <div className="info-card" key={item}>
-          <strong>{item}</strong>
-          <div className="muted-line">Waiting on Ross</div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function CalendarView() {
-  return (
-    <div className="simple-grid one">
-      {missionData.calendar.map((item) => (
-        <div className="info-card" key={item.title}>
-          <strong>{item.title}</strong>
-          <div className="muted-line">{item.date} • {item.time}</div>
-          <p>{item.kind}</p>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function ProjectsView() {
-  return (
-    <div className="simple-grid three">
-      {missionData.projects.map((project) => (
-        <div className="info-card" key={project.title}>
-          <strong>{project.title}</strong>
-          <div className="muted-line">{project.status} • Owner: {project.owner}</div>
-          <p>{project.detail}</p>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function MemoryView() {
-  return (
-    <div className="memory-layout">
-      <div className="info-card">
-        <strong>Daily Memory</strong>
-        <div className="list-stack">
-          {missionData.memory.daily.map((item) => <div key={item} className="memory-item">{item}</div>)}
-        </div>
-      </div>
-      <div className="info-card">
-        <strong>Long-Term Memory</strong>
-        <div className="list-stack">
-          {missionData.memory.longTerm.map((item) => <div key={item} className="memory-item">{item}</div>)}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function DocsView() {
-  return (
-    <div className="simple-grid two">
-      {missionData.docs.map((item) => (
-        <div className="info-card" key={item}>
-          <strong>{item}</strong>
-          <div className="muted-line">Searchable document</div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function OfficeView() {
-  return (
-    <div className="info-card office-box">
-      <strong>Office</strong>
-      <p>A playful 2D office layer should come after Tasks, Agents, Approvals, and Calendar are properly real. It should visualize Sir Alex, Bruno, Builder, Researcher, and Infra-operator hanging out and "working" in a funny, low-stakes way.</p>
-    </div>
-  );
-}
-
-function TeamView() {
-  return (
-    <div className="simple-grid one">
-      <div className="info-card">
-        <strong>Team Structure</strong>
-        <div className="muted-line">{missionData.team.mission}</div>
-        <div className="list-stack">
-          {missionData.team.structure.map((item) => (
-            <div key={`${item.parent}-${item.child}`} className="memory-item">{item.parent} → {item.child}</div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function labelFor(key) {
-  const map = {
-    tasks: 'Tasks',
-    agents: 'Agents',
-    approvals: 'Approvals',
-    calendar: 'Calendar',
-    projects: 'Projects',
-    memory: 'Memory',
-    docs: 'Docs',
-    office: 'Office',
-    team: 'Team',
-  };
-  return map[key] || 'Mission Control';
-}
-
-function descriptionFor(key) {
-  const map = {
-    tasks: 'Track active work across backlog, in progress, review, done, and live activity.',
-    agents: 'See your named agents, their roles, heartbeat, and current status.',
-    approvals: 'Everything currently waiting on your sign-off.',
-    calendar: 'Scheduled cron jobs and proactive tasks.',
-    projects: 'High-level progress across active initiatives.',
-    memory: 'Daily memory and long-term memory views.',
-    docs: 'All generated docs, plans, and specs.',
-    office: 'A future playful 2D visualization of agent activity.',
-    team: 'Role alignment and delegation structure for Sir Alex, Bruno, and the current agents.',
-  };
-  return map[key] || '';
 }
