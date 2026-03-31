@@ -1,51 +1,45 @@
 # Mission Control
 
-Mission Control is a local-first Next.js dashboard for running Ross’s work like an operating system instead of a soup of tabs, chats, specs, and vibes.
+Mission Control is a local-first Next.js dashboard for running Ross’s work like an operating system instead of a pile of tabs, chats, specs, and vibes.
 
-This project is **not** a homelab dashboard. It is the operating surface for the Ross + Sir Alex relationship: active projects, blockers, ownership, recent changes, repo drift, and scheduled work.
+This project is **not** a homelab dashboard. It is the operating surface for the Ross + Sir Alex relationship: active work, ownership, blockers, scheduled agent jobs, and team structure.
 
-## Current state
+## Current demo focus
 
-This build is now a stronger **first meaningful command-center slice** rather than a stack of disconnected placeholder tabs.
+This pass is intentionally tighter and more believable. The demo now focuses on five sections only:
 
-The app currently emphasizes:
+- **Tasks** — the main kanban view and visual center of gravity
+- **Calendar** — scheduled cron jobs and recurring agent work
+- **Projects** — the current active project portfolio
+- **Agents** — bio cards with role, status, and focus
+- **Team** — lightweight org chart and operating principles
 
-- **Executive overview** with high-signal operational metrics
-- **Active project cards** as the main center of gravity
-- **Needs attention** for blockers, staleness, repo drift, and Ross decisions
-- **Agent workload snapshot** showing ownership and relative load
-- **Recent activity** for meaningful changes
-- **Repo / workspace hygiene** visibility
-- **Cron / scheduling** visibility for recurring jobs
-- **Office view placeholder** kept as a playful secondary layer
+## Layout direction
 
-## Why it exists
+The current UI is rebuilt around the provided reference layout:
 
-Mission Control should answer, at a glance:
+- left navigation rail
+- top KPI strip and controls
+- central content area
+- right-side live activity panel
+- dark premium styling throughout
 
-- What projects are active right now?
-- What stage are they in?
-- What changed recently?
-- What is blocked?
-- What needs Ross to decide something?
-- Which agent owns what?
-- What scheduled work is coming up?
-- Is the repo/workspace staying aligned with real work?
+Tasks stays as the default landing view, with the other sections sharing the same shell so the app feels like one coherent command center instead of a grab bag of separate pages.
 
 ## Tech stack
 
 - **Next.js 16**
 - **React 19**
 - plain CSS via `app/globals.css`
-- local structured dashboard data via `lib/data.js`
+- local structured demo data via `lib/data.js`
 
 ## Project structure
 
 - `app/layout.js` — root layout and metadata
-- `app/page.js` — entry point
-- `components/MissionControlPage.js` — main dashboard UI
-- `lib/data.js` — explicit operating data model for the first slice
-- `app/globals.css` — styling and layout system
+- `app/page.js` — app entry
+- `components/MissionControlPage.js` — main shell plus section views
+- `lib/data.js` — dashboard content model
+- `app/globals.css` — premium dark layout and component styling
 
 ## Run locally
 
@@ -54,7 +48,7 @@ npm install
 npm run dev
 ```
 
-The app runs on:
+Default local URL:
 
 - <http://localhost:8102>
 
@@ -64,25 +58,22 @@ The app runs on:
 npm run build
 ```
 
-## Near-term next steps
+## Next likely improvements
 
-Likely follow-on slices:
-
-1. add project detail views and linked drill-downs
-2. derive parts of the model from real workspace/spec/git state
-3. connect scheduled work to actual cron/reminder sources
-4. make recent activity and hygiene less hand-authored
-5. turn the office layer into a genuinely fun secondary view
+1. derive more task/project/activity data from real workspace artifacts
+2. connect calendar lanes to actual cron/reminder sources
+3. add drill-down pages or drawers for project and task detail
+4. make live activity less hand-authored
+5. add richer approval and blocker handling
 
 ## Design intent
 
-The UI should feel:
+Mission Control should feel:
 
 - dark
 - sharp
 - premium
-- high-signal
 - operationally useful
 - mildly amused by the world
 
-Mission Control should feel like a real command center, not enterprise punishment software wearing a nicer jacket.
+In short: a real command center, not enterprise punishment software with mood lighting.
