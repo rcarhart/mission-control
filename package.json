@@ -1,0 +1,15 @@
+{
+  "name": "mission-control-next",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "next dev -p 8102",
+    "build": "next build",
+    "start": "next start -p 8102"
+  },
+  "dependencies": {
+    "next": "16.2.1",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  }
+}
