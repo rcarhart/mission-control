@@ -31,7 +31,8 @@ Tasks stays as the default landing view, with the other sections sharing the sam
 - **Next.js 16**
 - **React 19**
 - plain CSS via `app/globals.css`
-- local structured demo data via `lib/data.js`
+- fallback structured demo data via `lib/data.js`
+- semi-live workspace snapshot assembly via `lib/workspaceSnapshot.js`
 
 ## Project structure
 
@@ -58,13 +59,24 @@ Default local URL:
 npm run build
 ```
 
+## Current snapshot behavior
+
+The home page now prefers a semi-live workspace snapshot built from:
+
+- `specs/project-registry.yaml`
+- `plans/active-handoffs.md`
+- `plans/approval-queue.yaml`
+- `~/.openclaw/cron/jobs.json`
+
+If any of those reads fail, the UI falls back to `lib/data.js` so the demo still renders cleanly.
+
 ## Next likely improvements
 
-1. derive more task/project/activity data from real workspace artifacts
-2. connect calendar lanes to actual cron/reminder sources
-3. add drill-down pages or drawers for project and task detail
-4. make live activity less hand-authored
-5. add richer approval and blocker handling
+1. derive richer task detail from workspace artifacts instead of only handoff summaries
+2. expose approval gates and blockers with drill-down detail, not just counts
+3. add project and task drawers for deeper inspection without leaving the board
+4. make the activity stream reflect more than handoff recency and cron failures
+5. add test coverage around snapshot parsing and project-to-handoff matching
 
 ## Design intent
 

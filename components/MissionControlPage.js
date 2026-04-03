@@ -11,12 +11,13 @@ const toneClass = {
   purple: 'tone-purple',
 };
 
-export default function MissionControlPage() {
+export default function MissionControlPage({ missionSnapshot = missionData }) {
+  const data = missionSnapshot;
   const [activeSection, setActiveSection] = useState('tasks');
 
   const activeLabel = useMemo(
-    () => missionData.sections.find((section) => section.id === activeSection)?.label || 'Tasks',
-    [activeSection]
+    () => data.sections.find((section) => section.id === activeSection)?.label || 'Tasks',
+    [activeSection, data.sections]
   );
 
   return (
@@ -25,15 +26,15 @@ export default function MissionControlPage() {
         <div className="brand-panel">
           <div className="brand-mark">MC</div>
           <div>
-            <div className="brand-title">{missionData.brand.title}</div>
-            <div className="brand-subtitle">{missionData.brand.subtitle}</div>
+            <div className="brand-title">{data.brand.title}</div>
+            <div className="brand-subtitle">{data.brand.subtitle}</div>
           </div>
         </div>
 
-        <div className="environment-pill">{missionData.brand.environment}</div>
+        <div className="environment-pill">{data.brand.environment}</div>
 
         <nav className="nav-stack" aria-label="Primary sections">
-          {missionData.sections.map((section) => (
+          {data.sections.map((section) => (
             <button
               key={section.id}
               type="button"
@@ -58,21 +59,21 @@ export default function MissionControlPage() {
         <section className="topbar-card">
           <div>
             <div className="eyebrow">{activeLabel}</div>
-            <h1>{missionData.headline.title}</h1>
-            <p>{missionData.headline.summary}</p>
+            <h1>{data.headline.title}</h1>
+            <p>{data.headline.summary}</p>
           </div>
           <div className="topbar-actions">
             <div className="filter-row">
-              {missionData.filters.map((filter) => (
+              {data.filters.map((filter) => (
                 <span className="filter-chip" key={filter}>{filter}</span>
               ))}
             </div>
-            <button type="button" className="primary-button">{missionData.headline.cta}</button>
+            <button type="button" className="primary-button">{data.headline.cta}</button>
           </div>
         </section>
 
         <section className="metric-row">
-          {missionData.overview.map((item) => (
+          {data.overview.map((item) => (
             <article className="metric-card" key={item.label}>
               <div className="metric-label">{item.label}</div>
               <div className="metric-value">{item.value}</div>
@@ -83,11 +84,11 @@ export default function MissionControlPage() {
 
         <div className="content-grid">
           <section className="main-panel">
-            {activeSection === 'tasks' && <TasksView />}
-            {activeSection === 'calendar' && <CalendarView />}
-            {activeSection === 'projects' && <ProjectsView />}
-            {activeSection === 'agents' && <AgentsView />}
-            {activeSection === 'team' && <TeamView />}
+            {activeSection === 'tasks' && <TasksView data={data} />}
+            {activeSection === 'calendar' && <CalendarView data={data} />}
+            {activeSection === 'projects' && <ProjectsView data={data} />}
+            {activeSection === 'agents' && <AgentsView data={data} />}
+            {activeSection === 'team' && <TeamView data={data} />}
           </section>
 
           <aside className="activity-panel">
@@ -100,7 +101,7 @@ export default function MissionControlPage() {
             </div>
 
             <div className="activity-list">
-              {missionData.activity.map((item) => (
+              {data.activity.map((item) => (
                 <article className="activity-item" key={`${item.time}-${item.title}`}>
                   <div className="activity-meta">
                     <span className="actor-pill">{item.actor}</span>
@@ -115,7 +116,7 @@ export default function MissionControlPage() {
             <div className="insight-card">
               <div className="eyebrow">Operational readout</div>
               <div className="insight-list">
-                {missionData.insights.map((item) => (
+                {data.insights.map((item) => (
                   <div className="insight-row" key={item.label}>
                     <div>
                       <strong>{item.label}</strong>
@@ -133,7 +134,7 @@ export default function MissionControlPage() {
   );
 }
 
-function TasksView() {
+function TasksView({ data }) {
   return (
     <div className="panel-shell">
       <div className="panel-head">
@@ -145,7 +146,7 @@ function TasksView() {
       </div>
 
       <div className="board-grid">
-        {missionData.boardColumns.map((column) => (
+        {data.boardColumns.map((column) => (
           <section className="kanban-column" key={column.id}>
             <div className="column-head">
               <div className="column-title-wrap">
@@ -179,11 +180,13 @@ function TasksView() {
           </section>
         ))}
       </div>
+
+      <PressurePointsView data={data} />
     </div>
   );
 }
 
-function CalendarView() {
+function CalendarView({ data }) {
   return (
     <div className="panel-shell">
       <div className="panel-head">
@@ -192,7 +195,7 @@ function CalendarView() {
           <h2>Cron calendar</h2>
         </div>
         <div className="mini-metrics">
-          {missionData.scheduleSummary.map((item) => (
+          {data.scheduleSummary.map((item) => (
             <span className={`count-pill ${toneClass[item.tone] || ''}`} key={item.label}>
               {item.label}: {item.value}
             </span>
@@ -201,7 +204,7 @@ function CalendarView() {
       </div>
 
       <div className="calendar-grid">
-        {missionData.calendarDays.map((day) => (
+        {data.calendarDays.map((day) => (
           <section className="calendar-day" key={day.day}>
             <div className="calendar-head">
               <div>
@@ -226,7 +229,7 @@ function CalendarView() {
   );
 }
 
-function ProjectsView() {
+function ProjectsView({ data }) {
   return (
     <div className="panel-shell">
       <div className="panel-head">
@@ -238,7 +241,7 @@ function ProjectsView() {
       </div>
 
       <div className="project-list">
-        {missionData.projects.map((project) => (
+        {data.projects.map((project) => (
           <article className="project-row" key={project.name}>
             <div className="project-row-main">
               <div className="task-topline">
@@ -253,6 +256,14 @@ function ProjectsView() {
               <InfoItem label="Phase" value={project.phase} />
               <InfoItem label="Next" value={project.next} />
               <InfoItem label="Blockers" value={project.blockers} />
+              <InfoItem label="Verification" value={project.verification} />
+              <InfoItem label="Done means" value={project.doneMeans} />
+              {project.approval ? (
+                <InfoItem
+                  label={`Approval · ${project.approval.state}`}
+                  value={`${project.approval.task} — ${project.approval.why} Review: ${project.approval.review}`}
+                />
+              ) : null}
             </div>
           </article>
         ))}
@@ -261,7 +272,7 @@ function ProjectsView() {
   );
 }
 
-function AgentsView() {
+function AgentsView({ data }) {
   return (
     <div className="panel-shell">
       <div className="panel-head">
@@ -273,7 +284,7 @@ function AgentsView() {
       </div>
 
       <div className="agent-grid">
-        {missionData.agents.map((agent) => (
+        {data.agents.map((agent) => (
           <article className="agent-card" key={agent.name}>
             <div className="agent-header">
               <div>
@@ -299,7 +310,7 @@ function AgentsView() {
   );
 }
 
-function TeamView() {
+function TeamView({ data }) {
   return (
     <div className="panel-shell">
       <div className="panel-head">
@@ -311,7 +322,7 @@ function TeamView() {
       </div>
 
       <div className="org-grid">
-        {missionData.team.org.map((node) => (
+        {data.team.org.map((node) => (
           <article className="org-card" key={node.title}>
             <h3>{node.title}</h3>
             <div className="meta-copy">{node.subtitle}</div>
@@ -327,12 +338,47 @@ function TeamView() {
       <div className="principles-card">
         <div className="eyebrow">Operating principles</div>
         <div className="principles-list">
-          {missionData.team.principles.map((principle) => (
+          {data.team.principles.map((principle) => (
             <div className="principle-item" key={principle}>{principle}</div>
           ))}
         </div>
       </div>
     </div>
+  );
+}
+
+function PressurePointsView({ data }) {
+  if (!data.pressurePoints?.length) {
+    return null;
+  }
+
+  return (
+    <section className="pressure-points">
+      <div className="panel-head compact">
+        <div>
+          <div className="eyebrow">Why something is stuck</div>
+          <h2>Pressure points</h2>
+        </div>
+        <span className="subtle-chip">Blockers and approvals with actual detail</span>
+      </div>
+
+      <div className="pressure-grid">
+        {data.pressurePoints.map((item) => (
+          <article className="pressure-card" key={`${item.type}-${item.project}-${item.title}`}>
+            <div className="task-topline">
+              <span className="task-project">{item.project}</span>
+              <span className={`count-pill ${toneClass[item.tone] || ''}`}>{item.type}</span>
+            </div>
+            <h3>{item.title}</h3>
+            <p>{item.detail}</p>
+            <div className="project-facts single-column">
+              <InfoItem label="Owner" value={item.owner} />
+              <InfoItem label="Next move" value={item.next} />
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
   );
 }
 
