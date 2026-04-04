@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import { missionData } from '../lib/data';
 
 const toneClass = {
@@ -14,6 +14,10 @@ const toneClass = {
 export default function MissionControlPage({ missionSnapshot = missionData }) {
   const data = missionSnapshot;
   const [activeSection, setActiveSection] = useState('tasks');
+  const [drawerItem, setDrawerItem] = useState(null);
+
+  const openDrawer = useCallback((item) => setDrawerItem(item), []);
+  const closeDrawer = useCallback(() => setDrawerItem(null), []);
 
   const activeLabel = useMemo(
     () => data.sections.find((section) => section.id === activeSection)?.label || 'Tasks',
@@ -62,14 +66,7 @@ export default function MissionControlPage({ missionSnapshot = missionData }) {
             <h1>{data.headline.title}</h1>
             <p>{data.headline.summary}</p>
           </div>
-          <div className="topbar-actions">
-            <div className="filter-row">
-              {data.filters.map((filter) => (
-                <span className="filter-chip" key={filter}>{filter}</span>
-              ))}
-            </div>
-            <button type="button" className="primary-button">{data.headline.cta}</button>
-          </div>
+
         </section>
 
         <section className="metric-row">
@@ -84,10 +81,10 @@ export default function MissionControlPage({ missionSnapshot = missionData }) {
 
         <div className="content-grid">
           <section className="main-panel">
-            {activeSection === 'tasks' && <TasksView data={data} />}
+            {activeSection === 'tasks' && <TasksView data={data} openDrawer={openDrawer} />}
             {activeSection === 'calendar' && <CalendarView data={data} />}
-            {activeSection === 'projects' && <ProjectsView data={data} />}
-            {activeSection === 'agents' && <AgentsView data={data} />}
+            {activeSection === 'projects' && <ProjectsView data={data} openDrawer={openDrawer} />}
+            {activeSection === 'agents' && <AgentsView data={data} openDrawer={openDrawer} />}
             {activeSection === 'team' && <TeamView data={data} />}
           </section>
 
@@ -130,11 +127,103 @@ export default function MissionControlPage({ missionSnapshot = missionData }) {
           </aside>
         </div>
       </main>
+
+      <DetailDrawer item={drawerItem} onClose={closeDrawer} />
     </div>
   );
 }
 
-function TasksView({ data }) {
+function DetailDrawer({ item, onClose }) {
+  if (!item) return null;
+
+  return (
+    <>
+      <div
+        className="drawer-overlay"
+        role="presentation"
+        onClick={onClose}
+      />
+      <aside className="detail-drawer" role="dialog" aria-modal="true" aria-label="Item detail">
+        <div className="drawer-header">
+          <div>
+            <div className="eyebrow">{item.drawerKind || 'Detail'}</div>
+            <h2>{item.title || item.name}</h2>
+            {item.project && <div className="meta-copy">{item.project}</div>}
+          </div>
+          <button type="button" className="drawer-close" onClick={onClose} aria-label="Close detail panel">
+            ✕
+          </button>
+        </div>
+
+        <div className="drawer-body">
+          {item.summary && (
+            <div className="drawer-section">
+              <div className="eyebrow">Summary</div>
+              <p>{item.summary}</p>
+            </div>
+          )}
+
+          {item.bio && (
+            <div className="drawer-section">
+              <div className="eyebrow">Bio</div>
+              <p>{item.bio}</p>
+            </div>
+          )}
+
+          <div className="drawer-facts">
+            {item.owner && <InfoItem label="Owner" value={item.owner} />}
+            {item.priority && <InfoItem label="Priority" value={item.priority} />}
+            {item.status && <InfoItem label="Status" value={item.status} />}
+            {item.eta && <InfoItem label="ETA" value={item.eta} />}
+            {item.phase && <InfoItem label="Phase" value={item.phase} />}
+            {item.health && <InfoItem label="Health" value={item.health} />}
+            {item.role && <InfoItem label="Role" value={item.role} />}
+            {item.load && <InfoItem label="Load" value={item.load} />}
+            {item.focus && <InfoItem label="Current focus" value={item.focus} />}
+            {item.next && <InfoItem label="Next checkpoint" value={item.next} />}
+            {item.blockers && item.blockers !== 'None right now.' && (
+              <InfoItem label="Blockers" value={item.blockers} />
+            )}
+            {item.verification && <InfoItem label="Verification" value={item.verification} />}
+            {item.doneMeans && <InfoItem label="Done means" value={item.doneMeans} />}
+          </div>
+
+          {item.tags && item.tags.length > 0 && (
+            <div className="drawer-section">
+              <div className="eyebrow">Tags</div>
+              <div className="tag-row spaced-top">
+                {item.tags.map((tag) => (
+                  <span className="tag-chip" key={tag}>{tag}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {item.traits && item.traits.length > 0 && (
+            <div className="drawer-section">
+              <div className="eyebrow">Traits</div>
+              <div className="tag-row spaced-top">
+                {item.traits.map((trait) => (
+                  <span className="tag-chip" key={trait}>{trait}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {item.approval && (
+            <div className="drawer-section">
+              <div className="eyebrow">Approval gate · {item.approval.state}</div>
+              <p>{item.approval.task}</p>
+              {item.approval.why && <div className="meta-copy">{item.approval.why}</div>}
+            </div>
+          )}
+        </div>
+      </aside>
+    </>
+  );
+}
+
+function TasksView({ data, openDrawer }) {
   return (
     <div className="panel-shell">
       <div className="panel-head">
@@ -158,7 +247,14 @@ function TasksView({ data }) {
 
             <div className="card-stack">
               {column.cards.map((card) => (
-                <article className="task-card" key={card.title}>
+                <article
+                  className="task-card clickable"
+                  key={card.title}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => openDrawer({ ...card, drawerKind: 'Task' })}
+                  onKeyDown={(e) => e.key === 'Enter' && openDrawer({ ...card, drawerKind: 'Task' })}
+                >
                   <div className="task-topline">
                     <span className="task-project">{card.project}</span>
                     <span className="task-priority">{card.priority}</span>
@@ -186,7 +282,7 @@ function TasksView({ data }) {
   );
 }
 
-function CalendarView({ data }) {
+function CalendarView({ data, openDrawer }) {
   return (
     <div className="panel-shell">
       <div className="panel-head">
@@ -229,7 +325,7 @@ function CalendarView({ data }) {
   );
 }
 
-function ProjectsView({ data }) {
+function ProjectsView({ data, openDrawer }) {
   return (
     <div className="panel-shell">
       <div className="panel-head">
@@ -242,7 +338,14 @@ function ProjectsView({ data }) {
 
       <div className="project-list">
         {data.projects.map((project) => (
-          <article className="project-row" key={project.name}>
+          <article
+            className="project-row clickable"
+            key={project.name}
+            role="button"
+            tabIndex={0}
+            onClick={() => openDrawer({ ...project, title: project.name, drawerKind: 'Project' })}
+            onKeyDown={(e) => e.key === 'Enter' && openDrawer({ ...project, title: project.name, drawerKind: 'Project' })}
+          >
             <div className="project-row-main">
               <div className="task-topline">
                 <span className="task-project">{project.status}</span>
@@ -272,7 +375,7 @@ function ProjectsView({ data }) {
   );
 }
 
-function AgentsView({ data }) {
+function AgentsView({ data, openDrawer }) {
   return (
     <div className="panel-shell">
       <div className="panel-head">
@@ -285,7 +388,14 @@ function AgentsView({ data }) {
 
       <div className="agent-grid">
         {data.agents.map((agent) => (
-          <article className="agent-card" key={agent.name}>
+          <article
+            className="agent-card clickable"
+            key={agent.name}
+            role="button"
+            tabIndex={0}
+            onClick={() => openDrawer({ ...agent, title: agent.name, drawerKind: 'Agent' })}
+            onKeyDown={(e) => e.key === 'Enter' && openDrawer({ ...agent, title: agent.name, drawerKind: 'Agent' })}
+          >
             <div className="agent-header">
               <div>
                 <h3>{agent.name}</h3>
